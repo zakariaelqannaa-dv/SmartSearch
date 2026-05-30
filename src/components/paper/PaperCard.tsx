@@ -23,6 +23,7 @@ export default function PaperCard({
   const [citeOpen, setCiteOpen] = useState(false)
   const [citePos, setCitePos] = useState<{ top: number; left: number } | null>(null)
   const [copied, setCopied] = useState<string | null>(null)
+  const copiedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const citeBtnRef = useRef<HTMLButtonElement>(null)
   const citeDropdownRef = useRef<HTMLDivElement>(null)
 
@@ -69,7 +70,8 @@ export default function PaperCard({
   const handleCopy = async (label: string, text: string) => {
     await copyToClipboard(text)
     setCopied(label)
-    setTimeout(() => setCopied(null), 2000)
+    if (copiedTimerRef.current) clearTimeout(copiedTimerRef.current)
+    copiedTimerRef.current = setTimeout(() => setCopied(null), 2000)
   }
 
   const typeColors: Record<string, string> = {
@@ -112,13 +114,14 @@ export default function PaperCard({
 
       <div className="flex justify-between items-start mb-3 relative z-10">
         <span
-          className={`text-label-sm text-label-sm px-2 py-1 rounded ${badgeClass} border`}
+          className={`text-label-sm px-2 py-1 rounded ${badgeClass} border`}
         >
           {paper.category}
         </span>
         <button
           onClick={() => onSaveToggle(paper)}
-          className={`transition-colors cursor-pointer ${
+          aria-label={isSaved ? "Remove from saved" : "Save paper"}
+          className={`transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none rounded-lg ${
             isSaved ? "text-primary" : "text-on-surface-variant hover:text-primary"
           }`}
         >
@@ -131,12 +134,12 @@ export default function PaperCard({
           href={paper.link}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-headline-md text-headline-md font-bold mb-3 transition-colors relative z-10 block text-primary hover:underline"
+          className="text-headline-md font-bold mb-3 transition-colors relative z-10 block text-primary hover:underline"
         >
           {paper.title}
         </a>
       ) : (
-        <h3 className="text-headline-md text-headline-md font-bold mb-3 text-on-surface relative z-10">
+        <h3 className="text-headline-md font-bold mb-3 text-on-surface relative z-10">
           {paper.title}
         </h3>
       )}
@@ -146,7 +149,7 @@ export default function PaperCard({
           Neural Link Visualization
         </div>
       ) : (
-        <p className="text-body-md text-body-md text-on-surface-variant line-clamp-3 mb-unit-lg relative z-10">
+        <p className="text-body-md text-on-surface-variant line-clamp-3 mb-unit-lg relative z-10">
           {paper.abstract}
         </p>
       )}
@@ -181,11 +184,11 @@ export default function PaperCard({
       <div className="mt-auto flex items-center justify-between relative z-10">
         <div className="flex flex-col">
           {paper.journal && (
-            <span className="text-label-md text-label-md text-on-surface">
+            <span className="text-label-md text-on-surface">
               {paper.journal}
             </span>
           )}
-          <span className="text-label-sm text-label-sm text-on-surface-variant line-clamp-1">
+          <span className="text-label-sm text-on-surface-variant line-clamp-1">
             {paper.authors} &bull; {paper.date}
           </span>
         </div>
@@ -194,7 +197,9 @@ export default function PaperCard({
             <button
               ref={citeBtnRef}
               onClick={openCite}
-              className="bg-surface-container-highest hover:bg-primary hover:text-on-primary text-on-surface text-label-md text-label-md px-3 py-2 rounded-lg transition-all active:scale-95 flex items-center gap-1 cursor-pointer"
+              aria-label="Cite this paper"
+              aria-expanded={citeOpen}
+              className="bg-surface-container-highest hover:bg-primary hover:text-on-primary text-on-surface text-label-md px-3 py-2 rounded-lg transition-all active:scale-95 flex items-center gap-1 cursor-pointer focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
             >
               <Quote size={14} />
               Cite
@@ -202,7 +207,8 @@ export default function PaperCard({
           </div>
           <button
             onClick={() => onSaveToggle(paper)}
-            className={`px-4 py-2 rounded-lg transition-all active:scale-95 text-label-md text-label-md font-bold cursor-pointer ${
+            aria-label={isSaved ? "Remove from saved" : "Save paper"}
+            className={`px-4 py-2 rounded-lg transition-all active:scale-95 text-label-md font-bold cursor-pointer focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none ${
               isSaved
                 ? "bg-primary text-on-primary"
                 : "bg-surface-container-highest hover:bg-primary hover:text-on-primary text-on-surface"
@@ -225,12 +231,12 @@ export default function PaperCard({
           {citations.map(({ label, format }) => (
             <div key={label}>
               <div className="flex items-center justify-between mb-1.5">
-                <span className="text-label-sm text-label-sm font-bold text-on-surface">
+                <span className="text-label-sm font-bold text-on-surface">
                   {label}
                 </span>
                 <button
                   onClick={() => handleCopy(label, format())}
-                  className="text-label-sm text-label-sm text-primary hover:text-primary-fixed-dim transition-colors cursor-pointer flex items-center gap-1"
+                  className="text-label-sm text-primary hover:text-primary-fixed-dim transition-colors cursor-pointer flex items-center gap-1"
                 >
                   {copied === label ? (
                     <><Check size={14} className="text-success" /> Copied</>
@@ -239,7 +245,7 @@ export default function PaperCard({
                   )}
                 </button>
               </div>
-              <p className="text-label-sm text-label-sm text-on-surface-variant leading-relaxed bg-surface-container/50 p-2.5 rounded-lg">
+              <p className="text-label-sm text-on-surface-variant leading-relaxed bg-surface-container/50 p-2.5 rounded-lg">
                 {format()}
               </p>
             </div>

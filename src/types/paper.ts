@@ -11,8 +11,3 @@ export interface Paper {
   pdfLink?: string
   link?: string
 }
-
-export interface SearchResult {
-  papers: Paper[]
-  total?: number
-}

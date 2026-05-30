@@ -20,10 +20,14 @@ export default function Home() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
 
   useEffect(() => {
-    const saved = localStorage.getItem("savedPapers")
-    const history = localStorage.getItem("searchHistory")
-    if (saved) setSavedPapers(JSON.parse(saved))
-    if (history) setSearchHistory(JSON.parse(history))
+    try {
+      const saved = localStorage.getItem("savedPapers")
+      const history = localStorage.getItem("searchHistory")
+      if (saved) setSavedPapers(JSON.parse(saved))
+      if (history) setSearchHistory(JSON.parse(history))
+    } catch {
+      /* corrupt or unavailable localStorage */
+    }
   }, [])
 
   useEffect(() => {
@@ -73,7 +77,7 @@ export default function Home() {
           }
           throw new Error(data.error || "Search request failed")
         }
-        setResults(data.papers)
+        setResults(data.papers ?? [])
       } catch (err) {
         if (err instanceof DOMException && err.name === "AbortError") return
         setResults([])

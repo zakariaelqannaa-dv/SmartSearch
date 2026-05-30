@@ -1,6 +1,6 @@
 "use client"
 
-import { Search, SlidersHorizontal, X, ChevronDown, BookOpen, Globe, GraduationCap, Check } from "lucide-react"
+import { SlidersHorizontal, X, ChevronDown, BookOpen, Globe, GraduationCap, Check } from "lucide-react"
 import { useState, useRef, useEffect } from "react"
 
 export type SearchSource = "arxiv" | "wikipedia" | "cornell"
@@ -46,7 +46,7 @@ function CustomSelect({ value, options, onChange }: CustomSelectProps) {
       <button
         type="button"
         onClick={() => setOpen((p) => !p)}
-        className="w-full bg-surface-variant/10 hover:bg-surface-variant/20 border-0 rounded-xl px-3 py-2 text-label-sm text-label-sm text-on-surface font-medium outline-none focus:ring-2 focus:ring-primary/30 transition-all cursor-pointer flex items-center justify-between gap-2"
+        className="w-full bg-surface-variant/10 hover:bg-surface-variant/20 border-0 rounded-xl px-3 py-2 text-label-sm text-on-surface font-medium outline-none focus:ring-2 focus:ring-primary/30 transition-all cursor-pointer flex items-center justify-between gap-2"
       >
         <span>{selected?.label ?? value}</span>
         <ChevronDown size={16} className="shrink-0 text-on-surface-variant/60" />
@@ -147,7 +147,8 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className="bg-transparent border-none outline-none flex-1 text-body-md text-body-md text-on-surface placeholder:text-on-surface-variant/50 font-body-md"
+          aria-label="Search query"
+          className="bg-transparent border-none outline-none flex-1 text-body-md text-on-surface placeholder:text-on-surface-variant/50 font-body-md"
           placeholder={
             filters.source === "wikipedia"
               ? "Search Wikipedia..."
@@ -163,7 +164,9 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
             <button
               type="button"
               onClick={() => setShowFilters((p) => !p)}
-              className={`flex items-center gap-1.5 transition-colors text-label-md text-label-md font-label-md cursor-pointer whitespace-nowrap ${
+              aria-expanded={showFilters}
+              aria-label="Open filters"
+              className={`flex items-center gap-1.5 transition-colors text-label-md font-label-md cursor-pointer whitespace-nowrap focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none rounded-lg ${
                 activeFilterCount > 0
                   ? "text-primary"
                   : "text-on-surface-variant hover:text-primary"
@@ -181,12 +184,12 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
             {showFilters && (
               <div className="absolute right-0 top-full mt-2 w-64 bg-surface-container-high/95 backdrop-blur-xl border border-outline-variant/20 rounded-2xl shadow-2xl p-4 z-50">
                 <div className="flex items-center justify-between mb-3">
-                  <h4 className="text-label-sm text-label-sm font-bold text-on-surface">Filters</h4>
+                  <h4 className="text-label-sm font-bold text-on-surface">Filters</h4>
                   {activeFilterCount > 0 && (
                     <button
                       type="button"
                       onClick={clearFilters}
-                      className="flex items-center gap-1 text-label-xs text-label-xs text-primary hover:text-primary/80 transition-colors cursor-pointer"
+                      className="flex items-center gap-1 text-label-xs text-primary hover:text-primary/80 transition-colors cursor-pointer"
                     >
                       <X size={12} />
                       Clear
@@ -196,7 +199,7 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
 
                 <div className="space-y-3">
                   <div>
-                    <label className="text-label-xs text-label-xs text-on-surface-variant/70 mb-1 block font-medium tracking-wide uppercase">Source</label>
+                    <label className="text-label-xs text-on-surface-variant/70 mb-1 block font-medium tracking-wide uppercase">Source</label>
                     <CustomSelect
                       value={filters.source}
                       options={sources}
@@ -207,7 +210,7 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
                   {filters.source === "arxiv" && (
                     <>
                       <div>
-                        <label className="text-label-xs text-label-xs text-on-surface-variant/70 mb-1 block font-medium tracking-wide uppercase">Category</label>
+                        <label className="text-label-xs text-on-surface-variant/70 mb-1 block font-medium tracking-wide uppercase">Category</label>
                         <CustomSelect
                           value={filters.category}
                           options={categories}
@@ -216,7 +219,7 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
                       </div>
 
                       <div>
-                        <label className="text-label-xs text-label-xs text-on-surface-variant/70 mb-1 block font-medium tracking-wide uppercase">Sort By</label>
+                        <label className="text-label-xs text-on-surface-variant/70 mb-1 block font-medium tracking-wide uppercase">Sort By</label>
                         <CustomSelect
                           value={filters.sortBy}
                           options={[
@@ -229,7 +232,7 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
                       </div>
 
                       <div>
-                        <label className="text-label-xs text-label-xs text-on-surface-variant/70 mb-1 block font-medium tracking-wide uppercase">Sort Order</label>
+                        <label className="text-label-xs text-on-surface-variant/70 mb-1 block font-medium tracking-wide uppercase">Sort Order</label>
                         <CustomSelect
                           value={filters.sortOrder}
                           options={[

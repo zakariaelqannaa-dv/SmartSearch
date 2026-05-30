@@ -32,7 +32,7 @@ export default function Header({ activeTab, onTabChange, sidebarCollapsed }: Hea
               <button
                 key={key}
                 onClick={() => onTabChange(key)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-label-md text-label-md transition-all cursor-pointer ${
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-label-md transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none ${
                   activeTab === key
                     ? "text-primary font-bold bg-primary/10"
                     : "text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high/50"

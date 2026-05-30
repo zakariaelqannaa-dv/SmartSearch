@@ -1,0 +1,128 @@
+SMARTSEARCH — Project Changes Log
+===================================
+
+1. ARXIV INTEGRATION & PARSING
+   - Regex-based Atom XML parser (removed @xmldom/xmldom)
+   - Query sanitization (strips \ and control chars)
+   - 30s AbortController timeout (later reduced to 15s, then 12s)
+   - 3.5s throttle gap between requests
+   - 429 auto-retry (5s wait, later reduced to 3s)
+   - max_results set to 10 (later reduced to 5, then increased to 15)
+   - Fallback when category filter returns 0 results
+   - HTML search page fallback when Atom API fails/timeouts
+
+2. API ROUTE (src/app/api/search/route.ts)
+   - arXiv proxy with proper HTTP status codes (429/400/502/503/504/200)
+   - User-friendly error messages per status
+   - Added source parameter routing (arxiv | wikipedia | cornell)
+
+3. SEARCH SOURCES (Multi-Source Support)
+   - arXiv: academic papers via export.arxiv.org
+   - Wikipedia: article summaries via Wikipedia REST API (lib/wikipedia.ts)
+   - Cornell: news articles via HTML scraper (lib/cornell.ts)
+   - Source selector in SearchBar filters panel
+   - Dynamic placeholder text per source
+   - Dynamic search bar icon per source
+
+4. CUSTOM SELECT COMPONENT
+   - Replaced native <select> elements with CustomSelect
+   - Dark-theme styled dropdown (bg-surface-container-high, text-on-surface)
+   - Check icon on selected option
+   - Click-outside to close
+   - Filter panel tightened: w-72 -> w-64, p-5 -> p-4
+
+5. CITATION GENERATOR (lib/citation.ts)
+   - APA, MLA, Chicago formatters
+   - Portal-based citation dropdown in PaperCard
+   - One-click copy with feedback animation
+   - Always opens upward with viewport boundary detection
+   - Stays open on scroll (removed scroll close listener)
+
+6. UI COMPONENTS
+   - Sidebar: collapsible, Google-style active state, saved papers clickable
+   - Header: lowercase Tab type, "Insights" with Lightbulb icon
+   - MainDashboard: search, results, skeleton loading, error alerts
+   - HomeView: "What is SmartSearch?" card with features grid
+   - InsightsView: saved papers list, search history tags, summary panel
+   - PaperCard: category badges, colored by type, portal-based cite dropdown
+   - SummaryPanel: saved papers display in search view
+   - SearchBar: glass input, filter dropdown with source/category/sort
+
+7. SCROLLBAR & DROPDOWN FIXES
+   - Hidden scrollbar (custom-scrollbar: scrollbar-width none, display none)
+   - Citation dropdown viewport boundary detection (flip above if near bottom)
+   - Dropdown focuses on open (tabIndex={-1} + .focus())
+   - Fixed hydration error (mounted state guard for createPortal)
+
+8. FAVICON
+   - Replaced default Next.js favicon with SmartSearchfavicon.png
+   - Icon at src/app/icon.png (1024x1024, served as 96x96)
+   - Metadata icons + explicit <link> tag
+
+9. ERROR HANDLING & TIMEOUTS
+   - AbortController timeout: 30s -> 15s -> 12s -> 4s+8s fallback -> 12s
+   - API route returns 504 on timeout with helpful message
+   - Frontend 429 retry (3s wait, 1 retry)
+
+10. SEARCH RESULTS
+    - Default: 15 results per source
+    - 2-column grid layout
+    - Skeleton loading cards
+    - Empty states (no query / no results / no saved papers)
+
+11. GIT & README
+    - Initialized git repo
+    - Pushed to github.com/zakariaelqannaa-dv/SmartSearch
+    - README.md rewritten with logo, features, quick start, tech stack, project structure
+    - Added signature: "Built by zakariaelqannaa-dv"
+
+12. RESULT COUNT INCREASE
+    - arXiv max_results: 5 -> 15
+    - Wikipedia srlimit: 10 -> 15, slice 5 -> 15
+    - Cornell fallback: slice 5 -> 15, max 10 -> 15
+
+13. PLANNED: MOBILE RESPONSIVENESS
+    GOAL: Make the dashboard fully usable on mobile devices (phones, small tablets).
+
+    a. SIDEBAR
+       - Collapse sidebar by default on screens <768px
+       - Replace with a hamburger menu / bottom sheet overlay
+       - Make tab icons visible without text labels on collapsed state
+
+    b. HEADER
+       - Reduce padding and font sizes on small screens
+       - Hide "SmartSearch" title, show only icon
+       - Make tab labels shorter or icons-only
+
+    c. SEARCH BAR
+       - Reduce border radius and padding on mobile
+       - Stack filters inline or collapse into a single row
+       - Ensure input font size >= 16px to prevent iOS zoom on focus
+
+    d. RESULTS GRID
+       - Switch from 2-column grid to single column on mobile
+       - Reduce card padding and font sizes
+       - Make click targets (buttons, links) larger for touch
+
+    e. FILTERS PANEL
+       - Full-width bottom sheet instead of right-aligned dropdown
+       - Make selects and buttons larger for touch
+
+    f. PAPER CARD
+       - Stack actions vertically instead of horizontal row
+       - Reduce margin/padding
+       - Ensure citation dropdown doesn't overflow viewport
+
+    g. INSIGHTS / HOME VIEWS
+       - Stack feature grid and steps into single column
+       - Reduce card padding
+
+    h. GENERAL
+       - Use responsive container max widths
+       - Add viewport meta tag (already present via Next.js)
+       - Test on 320px, 375px, 414px, 768px, 1024px, 1280px widths
+       - Ensure all touch targets are at least 44x44px
+       - iPad (768x1024): use 2-column grid, keep sidebar visible but collapsed
+       - iPad Air 10.9" (820x1180): 2-column grid, sidebar collapsed by default, bottom-sheet filters
+       - iPad Pro (1024x1366): similar to desktop with slightly tighter spacing
+       - Big tablets (1024px+): keep desktop layout, reduce padding by ~15%

@@ -58,17 +58,18 @@ export default function Sidebar({
           style={{ opacity: isCollapsed ? 0 : 1, width: isCollapsed ? 0 : "auto" }}
         >
           <div className="whitespace-nowrap">
-            <h1 className="text-headline-md text-headline-md font-bold text-primary leading-none">
+            <h1 className="text-headline-md font-bold text-primary leading-none">
               SmartSearch
             </h1>
-            <p className="text-label-sm text-label-sm text-on-surface-variant opacity-70 mt-0.5">
+            <p className="text-label-sm text-on-surface-variant opacity-70 mt-0.5">
               Research Assistant
             </p>
           </div>
         </div>
         <button
           onClick={onToggle}
-          className="ml-auto shrink-0 text-on-surface-variant hover:text-on-surface transition-colors cursor-pointer"
+          aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+          className="ml-auto shrink-0 text-on-surface-variant hover:text-on-surface transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none rounded-lg"
         >
           {isCollapsed ? <PanelLeft size={18} /> : <PanelLeftClose size={18} />}
         </button>
@@ -79,7 +80,7 @@ export default function Sidebar({
           <button
             key={key}
             onClick={() => onTabChange(key)}
-            className={`w-full flex items-center gap-unit-md py-3 px-unit-md rounded-lg transition-all duration-200 ease-[cubic-bezier(0.4,0,0.2,1)] text-label-md text-label-md cursor-pointer text-left ${
+            className={`w-full flex items-center gap-unit-md py-3 px-unit-md rounded-lg transition-all duration-200 ease-[cubic-bezier(0.4,0,0.2,1)] text-label-md cursor-pointer text-left focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none ${
               activeTab === key
                 ? "bg-primary/10 text-primary border-0"
                 : "text-on-surface-variant hover:bg-surface-variant/20"
@@ -110,7 +111,7 @@ export default function Sidebar({
           <>
             <div className="flex items-center gap-2 mb-3 px-2">
               <History className="text-primary shrink-0" size={16} />
-              <span className="text-label-sm text-label-sm font-bold text-on-surface whitespace-nowrap">
+              <span className="text-label-sm font-bold text-on-surface whitespace-nowrap">
                 Recent Searches
               </span>
             </div>
@@ -118,13 +119,22 @@ export default function Sidebar({
               {searchHistory.map((query) => (
                 <div
                   key={query}
-                  className="flex items-center justify-between group/item px-2 py-1.5 rounded-lg hover:bg-surface-container-high/50 transition-colors cursor-pointer"
+                  role="button"
+                  tabIndex={0}
+                  className="flex items-center justify-between group/item px-2 py-1.5 rounded-lg hover:bg-surface-container-high/50 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
                   onClick={() => {
                     onTabChange("search")
                     onSearchHistory(query)
                   }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault()
+                      onTabChange("search")
+                      onSearchHistory(query)
+                    }
+                  }}
                 >
-                  <span className="text-label-sm text-label-sm text-on-surface-variant truncate group-hover/item:text-primary transition-colors">
+                  <span className="text-label-sm text-on-surface-variant truncate group-hover/item:text-primary transition-colors">
                     {query}
                   </span>
                   <button
@@ -132,8 +142,8 @@ export default function Sidebar({
                       e.stopPropagation()
                       onRemoveHistory(query)
                     }}
-                    className="opacity-0 group-hover/item:opacity-100 text-on-surface-variant hover:text-error hover:bg-error/10 transition-all duration-200 shrink-0 cursor-pointer rounded-full p-1.5"
-                    title="Remove"
+                    aria-label={`Remove "${query}" from history`}
+                    className="opacity-0 group-hover/item:opacity-100 text-on-surface-variant hover:text-error hover:bg-error/10 transition-all duration-200 shrink-0 cursor-pointer rounded-full p-1.5 focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
                   >
                     <X size={12} />
                   </button>
@@ -151,7 +161,7 @@ export default function Sidebar({
           maxHeight: isCollapsed ? 0 : "60px",
         }}
       >
-        <button onClick={onNewSession} className="w-full bg-primary text-on-primary py-3 px-4 rounded-xl text-label-md text-label-md font-bold flex items-center justify-center gap-2 hover:brightness-110 active:scale-95 transition-all shadow-lg shadow-primary/10 cursor-pointer whitespace-nowrap">
+        <button onClick={onNewSession} className="w-full bg-primary text-on-primary py-3 px-4 rounded-xl text-label-md font-bold flex items-center justify-center gap-2 hover:brightness-110 active:scale-95 transition-all shadow-lg shadow-primary/10 cursor-pointer whitespace-nowrap focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none">
           <Plus size={18} />
           New Research Session
         </button>
@@ -164,11 +174,11 @@ export default function Sidebar({
             className="overflow-hidden transition-[opacity,width] duration-200 ease-in-out flex items-center gap-2"
             style={{ opacity: isCollapsed ? 0 : 1, width: isCollapsed ? 0 : "auto" }}
           >
-            <span className="text-label-md text-label-md font-bold text-on-surface whitespace-nowrap">
+            <span className="text-label-md font-bold text-on-surface whitespace-nowrap">
               Saved Citations
             </span>
             {savedPapers.length > 0 && (
-              <span className="text-label-sm text-label-sm text-on-surface-variant whitespace-nowrap">
+              <span className="text-label-sm text-on-surface-variant whitespace-nowrap">
                 {savedPapers.length}
               </span>
             )}
@@ -182,15 +192,23 @@ export default function Sidebar({
           }}
         >
           {savedPapers.length === 0 ? (
-            <p className="text-label-sm text-label-sm text-on-surface-variant/50 px-2 whitespace-nowrap">
+            <p className="text-label-sm text-on-surface-variant/50 px-2 whitespace-nowrap">
               No papers saved yet.
             </p>
           ) : (
             savedPapers.map((paper) => (
               <div
                 key={paper.id}
+                role="button"
+                tabIndex={0}
                 onClick={() => onViewSavedPaper(paper)}
-                className="p-3 rounded-lg bg-surface-container-high/50 border border-outline-variant/10 hover:border-primary/30 transition-colors cursor-pointer group"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault()
+                    onViewSavedPaper(paper)
+                  }
+                }}
+                className="p-3 rounded-lg bg-surface-container-high/50 border border-outline-variant/10 hover:border-primary/30 transition-colors cursor-pointer group focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none"
               >
                 <div className="flex items-start justify-between gap-1">
                   {paper.link ? (
@@ -199,19 +217,20 @@ export default function Sidebar({
                       target="_blank"
                       rel="noopener noreferrer"
                       onClick={(e) => e.stopPropagation()}
-                      className="text-label-sm text-label-sm font-bold text-primary hover:underline line-clamp-1 transition-colors flex-1 whitespace-nowrap overflow-hidden text-ellipsis flex items-center gap-1"
+                      className="text-label-sm font-bold text-primary hover:underline line-clamp-1 transition-colors flex-1 whitespace-nowrap overflow-hidden text-ellipsis flex items-center gap-1"
                     >
                       {paper.title}
                       <ExternalLink size={12} className="shrink-0 opacity-60" />
                     </a>
                   ) : (
-                    <h4 className="text-label-sm text-label-sm font-bold text-on-surface line-clamp-1 flex-1 whitespace-nowrap overflow-hidden text-ellipsis">
+                    <h4 className="text-label-sm font-bold text-on-surface line-clamp-1 flex-1 whitespace-nowrap overflow-hidden text-ellipsis">
                       {paper.title}
                     </h4>
                   )}
                   <button
                     onClick={() => onRemoveSaved(paper.id)}
-                    className="text-on-surface-variant hover:text-error transition-colors shrink-0 opacity-0 group-hover:opacity-100 cursor-pointer"
+                    aria-label={`Remove "${paper.title}" from saved`}
+                    className="text-on-surface-variant hover:text-error transition-colors shrink-0 opacity-0 group-hover:opacity-100 cursor-pointer focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:outline-none rounded-lg"
                   >
                     <X size={14} />
                   </button>

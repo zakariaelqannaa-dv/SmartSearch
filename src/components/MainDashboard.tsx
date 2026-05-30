@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import SearchBar, { SearchFilters } from "@/components/search/SearchBar"
 import PaperCard from "@/components/paper/PaperCard"
@@ -60,7 +60,7 @@ export default function MainDashboard({
         {error && (
           <div className="flex items-center gap-3 glass-card rounded-xl px-unit-lg py-4 mb-unit-lg border border-error/30 bg-error/5">
             <AlertCircle className="text-error shrink-0" size={20} />
-            <p className="text-label-md text-label-md text-error flex-1">
+            <p className="text-label-md text-error flex-1">
               {error}
             </p>
           </div>
@@ -78,7 +78,7 @@ export default function MainDashboard({
         {!loading && !error && results.length === 0 && !hasSearched && (
           <div className="flex items-center justify-center py-unit-xl">
             <div className="text-center">
-              <p className="text-body-lg text-body-lg text-on-surface-variant">
+              <p className="text-body-lg text-on-surface-variant">
                 Enter a query above to search academic papers.
               </p>
             </div>
@@ -88,10 +88,10 @@ export default function MainDashboard({
         {!loading && !error && results.length === 0 && hasSearched && (
           <div className="glass-card rounded-xl p-unit-lg text-center max-w-lg mx-auto mt-unit-lg">
             <Search className="text-on-surface-variant/40 mx-auto mb-3" size={36} />
-            <p className="text-body-lg text-body-lg text-on-surface-variant mb-2">
+            <p className="text-body-lg text-on-surface-variant mb-2">
               No results found
             </p>
-            <p className="text-label-md text-label-md text-on-surface-variant/60">
+            <p className="text-label-md text-on-surface-variant/60">
               Try different keywords, check your spelling, or broaden your search.
             </p>
           </div>
@@ -116,14 +116,14 @@ export default function MainDashboard({
           </section>
         )}
 
-        {!loading && results.length === 0 && savedPapers.length > 0 && (
+        {!loading && results.length === 0 && savedPapers.length === 0 && (
           <section className="mt-unit-xl">
             <div className="glass-card rounded-xl p-unit-lg flex flex-col items-center justify-center text-center min-h-[200px]">
               <BookOpen className="text-on-surface-variant mb-3" size={32} />
-              <p className="text-label-md text-label-md text-on-surface-variant">
+              <p className="text-label-md text-on-surface-variant">
                 No papers saved yet.
               </p>
-              <p className="text-label-sm text-label-sm text-on-surface-variant/60 mt-1">
+              <p className="text-label-sm text-on-surface-variant/60 mt-1">
                 Click the bookmark icon on any paper to save it here.
               </p>
             </div>
