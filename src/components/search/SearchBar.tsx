@@ -1,6 +1,6 @@
 "use client"
 
-import { Search, SlidersHorizontal, X, ChevronDown, BookOpen, Globe, GraduationCap } from "lucide-react"
+import { Search, SlidersHorizontal, X, ChevronDown, BookOpen, Globe, GraduationCap, Check } from "lucide-react"
 import { useState, useRef, useEffect } from "react"
 
 export type SearchSource = "arxiv" | "wikipedia" | "cornell"
@@ -14,6 +14,64 @@ export interface SearchFilters {
 
 interface SearchBarProps {
   onSearch?: (query: string, filters?: SearchFilters) => void
+}
+
+interface SelectOption {
+  value: string
+  label: string
+}
+
+interface CustomSelectProps {
+  value: string
+  options: SelectOption[]
+  onChange: (value: string) => void
+}
+
+function CustomSelect({ value, options, onChange }: CustomSelectProps) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+    }
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [])
+
+  const selected = options.find((o) => o.value === value)
+
+  return (
+    <div className="relative" ref={ref}>
+      <button
+        type="button"
+        onClick={() => setOpen((p) => !p)}
+        className="w-full bg-surface-variant/10 hover:bg-surface-variant/20 border-0 rounded-xl px-3 py-2 text-label-sm text-label-sm text-on-surface font-medium outline-none focus:ring-2 focus:ring-primary/30 transition-all cursor-pointer flex items-center justify-between gap-2"
+      >
+        <span>{selected?.label ?? value}</span>
+        <ChevronDown size={16} className="shrink-0 text-on-surface-variant/60" />
+      </button>
+      {open && (
+        <div className="absolute left-0 right-0 top-full mt-1 bg-surface-container-high border border-outline-variant/20 rounded-xl shadow-2xl z-50 py-1 overflow-hidden">
+          {options.map((opt) => (
+            <button
+              key={opt.value}
+              type="button"
+              onClick={() => { onChange(opt.value); setOpen(false) }}
+              className={`w-full text-left px-3 py-1.5 text-label-sm transition-colors cursor-pointer flex items-center justify-between gap-2 ${
+                opt.value === value
+                  ? "text-primary bg-primary/10"
+                  : "text-on-surface hover:bg-surface-variant/20"
+              }`}
+            >
+              <span>{opt.label}</span>
+              {opt.value === value && <Check size={14} className="shrink-0 text-primary" />}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  )
 }
 
 const sources: { value: SearchSource; label: string; icon: typeof BookOpen }[] = [
@@ -121,85 +179,65 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
             </button>
 
             {showFilters && (
-              <div className="absolute right-0 top-full mt-2 w-72 bg-surface-container-high/95 backdrop-blur-xl border border-outline-variant/20 rounded-2xl shadow-2xl p-5 z-50">
-                <div className="flex items-center justify-between mb-4">
-                  <h4 className="text-label-md text-label-md font-bold text-on-surface">Filters</h4>
+              <div className="absolute right-0 top-full mt-2 w-64 bg-surface-container-high/95 backdrop-blur-xl border border-outline-variant/20 rounded-2xl shadow-2xl p-4 z-50">
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="text-label-sm text-label-sm font-bold text-on-surface">Filters</h4>
                   {activeFilterCount > 0 && (
                     <button
                       type="button"
                       onClick={clearFilters}
-                      className="flex items-center gap-1 text-label-sm text-label-sm text-primary hover:text-primary/80 transition-colors cursor-pointer"
+                      className="flex items-center gap-1 text-label-xs text-label-xs text-primary hover:text-primary/80 transition-colors cursor-pointer"
                     >
-                      <X size={14} />
+                      <X size={12} />
                       Clear
                     </button>
                   )}
                 </div>
 
-                <div className="space-y-4">
+                <div className="space-y-3">
                   <div>
-                    <label className="text-label-xs text-label-xs text-on-surface-variant/70 mb-1.5 block font-medium tracking-wide uppercase">Source</label>
-                    <div className="relative">
-                      <select
-                        value={filters.source}
-                        onChange={(e) => handleFilterChange("source", e.target.value)}
-                        className="w-full bg-surface-variant/10 hover:bg-surface-variant/20 border-0 rounded-xl px-4 py-2.5 pr-8 text-label-md text-label-md text-on-surface font-medium outline-none focus:ring-2 focus:ring-primary/30 transition-all cursor-pointer appearance-none"
-                      >
-                        {sources.map((s) => (
-                          <option key={s.value} value={s.value}>{s.label}</option>
-                        ))}
-                      </select>
-                      <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant/60" />
-                    </div>
+                    <label className="text-label-xs text-label-xs text-on-surface-variant/70 mb-1 block font-medium tracking-wide uppercase">Source</label>
+                    <CustomSelect
+                      value={filters.source}
+                      options={sources}
+                      onChange={(v) => handleFilterChange("source", v)}
+                    />
                   </div>
 
                   {filters.source === "arxiv" && (
                     <>
                       <div>
-                        <label className="text-label-xs text-label-xs text-on-surface-variant/70 mb-1.5 block font-medium tracking-wide uppercase">Category</label>
-                        <div className="relative">
-                          <select
-                            value={filters.category}
-                            onChange={(e) => handleFilterChange("category", e.target.value)}
-                            className="w-full bg-surface-variant/10 hover:bg-surface-variant/20 border-0 rounded-xl px-4 py-2.5 pr-8 text-label-md text-label-md text-on-surface font-medium outline-none focus:ring-2 focus:ring-primary/30 transition-all cursor-pointer appearance-none"
-                          >
-                            {categories.map((c) => (
-                              <option key={c.value} value={c.value}>{c.label}</option>
-                            ))}
-                          </select>
-                          <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant/60" />
-                        </div>
+                        <label className="text-label-xs text-label-xs text-on-surface-variant/70 mb-1 block font-medium tracking-wide uppercase">Category</label>
+                        <CustomSelect
+                          value={filters.category}
+                          options={categories}
+                          onChange={(v) => handleFilterChange("category", v)}
+                        />
                       </div>
 
                       <div>
-                        <label className="text-label-xs text-label-xs text-on-surface-variant/70 mb-1.5 block font-medium tracking-wide uppercase">Sort By</label>
-                        <div className="relative">
-                          <select
-                            value={filters.sortBy}
-                            onChange={(e) => handleFilterChange("sortBy", e.target.value)}
-                            className="w-full bg-surface-variant/10 hover:bg-surface-variant/20 border-0 rounded-xl px-4 py-2.5 pr-8 text-label-md text-label-md text-on-surface font-medium outline-none focus:ring-2 focus:ring-primary/30 transition-all cursor-pointer appearance-none"
-                          >
-                            <option value="relevance">Relevance</option>
-                            <option value="lastUpdatedDate">Last Updated</option>
-                            <option value="submittedDate">Submission Date</option>
-                          </select>
-                          <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant/60" />
-                        </div>
+                        <label className="text-label-xs text-label-xs text-on-surface-variant/70 mb-1 block font-medium tracking-wide uppercase">Sort By</label>
+                        <CustomSelect
+                          value={filters.sortBy}
+                          options={[
+                            { value: "relevance", label: "Relevance" },
+                            { value: "lastUpdatedDate", label: "Last Updated" },
+                            { value: "submittedDate", label: "Submission Date" },
+                          ]}
+                          onChange={(v) => handleFilterChange("sortBy", v)}
+                        />
                       </div>
 
                       <div>
-                        <label className="text-label-xs text-label-xs text-on-surface-variant/70 mb-1.5 block font-medium tracking-wide uppercase">Sort Order</label>
-                        <div className="relative">
-                          <select
-                            value={filters.sortOrder}
-                            onChange={(e) => handleFilterChange("sortOrder", e.target.value)}
-                            className="w-full bg-surface-variant/10 hover:bg-surface-variant/20 border-0 rounded-xl px-4 py-2.5 pr-8 text-label-md text-label-md text-on-surface font-medium outline-none focus:ring-2 focus:ring-primary/30 transition-all cursor-pointer appearance-none"
-                          >
-                            <option value="descending">Descending</option>
-                            <option value="ascending">Ascending</option>
-                          </select>
-                          <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant/60" />
-                        </div>
+                        <label className="text-label-xs text-label-xs text-on-surface-variant/70 mb-1 block font-medium tracking-wide uppercase">Sort Order</label>
+                        <CustomSelect
+                          value={filters.sortOrder}
+                          options={[
+                            { value: "descending", label: "Descending" },
+                            { value: "ascending", label: "Ascending" },
+                          ]}
+                          onChange={(v) => handleFilterChange("sortOrder", v)}
+                        />
                       </div>
                     </>
                   )}
