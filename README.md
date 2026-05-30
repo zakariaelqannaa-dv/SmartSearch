@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="src/app/icon.png" alt="SmartSearch" width="120" height="120" />
+  <img src="src/app/icon.png" alt="SmartSearch" width="150" height="150" />
 </p>
 
 <h1 align="center">SmartSearch</h1>
